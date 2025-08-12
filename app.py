@@ -1,68 +1,96 @@
-class  Atm:
-    def  __init__(self):
-        self.pin=''
-        self.balance=''
+class ATM:
+    def __init__(self):
+        self.pin = None
+        self.balance = 0
         self.menu()
 
     def menu(self):
-        user_input=input("""
-        hi  may  I  help  you?
-        1. Press  1  to create  pin.
-        2. Press  2  change  pin.
-        3.Press to  check balance.
-        4. Press  to withdraw 
-        5. Anything  else  to  exit.
-        """)
+        while True:
+            user_input = input("""
+================ ATM MENU ================
+1. Create PIN
+2. Change PIN
+3. Check Balance
+4. Withdraw
+5. Exit
+===========================================
+Enter your choice: """).strip()
 
-        if  user_input =="1":
-            self.create_pin()
-        elif user_input=="2":
-            self.change_pin()
-        elif user_input=="3":
-            self.check_balance()
-        elif  user_input=="4":
-            self.withdraw()
-    def  create_pin(self):
-        user_pin=input("enter  your  pin")
-        self.pin=user_pin
-
-        user_balance=int(input("enter  your balance"))
-        self.balance=user_balance
-        print("pin created  successfully")
-        self.menu()
-
-    def  change_pin(self):
-        old_pin=input("enter  old  pin")
-        if old_pin==self.pin:
-            new_pin=input("enter  new pin")
-            self.pin=new_pin
-            print("pin changed  successfully")
-            self.menu()
-        else:
-            print("wrong  pin entered")
-            self.menu()
-    def  check_balance(self):
-        user_pin=input("enter  your  pin")
-        if user_pin==self.pin:
-            print("your balance  is:",self.balance)
-            self.menu()
-        else:
-            print("wrong  pin entered")
-            self.menu()
-
-    def  withdraw(self):
-        user_pin=input("enter  your  pin")
-        if user_pin==self.pin:
-            amount=int(input("enter amount to withdraw"))
-            if amount<=self.balance:
-                self.balance=self.balance-amount
-                print("withdrwal successfull.balace is:" ,self.balance)
-                self.menu()
+            if user_input == "1":
+                self.create_pin()
+            elif user_input == "2":
+                self.change_pin()
+            elif user_input == "3":
+                self.check_balance()
+            elif user_input == "4":
+                self.withdraw()
+            elif user_input == "5":
+                print("Thank you for using the ATM. Goodbye!")
+                break
             else:
-                print("below balance")
-                self.menu()
-        else:
-            print("wrong amount entered")
-            self.menu()
+                print("Invalid choice! Please try again.")
 
-obj = Atm()
+    def create_pin(self):
+        if self.pin is not None:
+            print("PIN already created! Use option 2 to change it.")
+            return
+        self.pin = input("Enter new PIN: ").strip()
+        while not self.pin.isdigit() or len(self.pin) != 4:
+            print("PIN must be a 4-digit number.")
+            self.pin = input("Enter new PIN: ").strip()
+
+        try:
+            self.balance = float(input("Enter initial balance: "))
+            if self.balance < 0:
+                raise ValueError
+        except ValueError:
+            print("Invalid balance! Setting balance to 0.")
+            self.balance = 0
+
+        print("PIN created successfully.")
+
+    def change_pin(self):
+        if not self.verify_pin():
+            return
+        new_pin = input("Enter new PIN: ").strip()
+        while not new_pin.isdigit() or len(new_pin) != 4:
+            print("PIN must be a 4-digit number.")
+            new_pin = input("Enter new PIN: ").strip()
+        self.pin = new_pin
+        print("PIN changed successfully.")
+
+    def check_balance(self):
+        if not self.verify_pin():
+            return
+        print(f"Your balance is: ₹{self.balance:.2f}")
+
+    def withdraw(self):
+        if not self.verify_pin():
+            return
+        try:
+            amount = float(input("Enter amount to withdraw: "))
+            if amount <= 0:
+                print("Withdrawal amount must be positive.")
+            elif amount <= self.balance:
+                self.balance -= amount
+                print(f"Withdrawal successful! Remaining balance: ₹{self.balance:.2f}")
+            else:
+                print("Insufficient balance.")
+        except ValueError:
+            print("Invalid amount entered.")
+
+    def verify_pin(self):
+        if self.pin is None:
+            print("PIN not created yet. Please create a PIN first.")
+            return False
+        entered_pin = input("Enter your PIN: ").strip()
+        if entered_pin == self.pin:
+            return True
+        else:
+            print("Incorrect PIN.")
+            return False
+
+
+# Run the ATM
+if __name__ == "__main__":
+    ATM()
